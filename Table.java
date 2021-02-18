@@ -15,7 +15,6 @@ import java.util.Scanner;
 public class Table {
 	private String name;
 	private Date date;
-	private SimpleDateFormat newDate = new SimpleDateFormat("dd/mm/yyyy");
     public Table(String n, Date d)
     {
     	this.name = n;

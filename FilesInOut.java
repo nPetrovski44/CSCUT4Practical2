@@ -5,6 +5,8 @@ import java.util.*;
 import javax.swing.*;
 import java.lang.Number;
 import java.text.SimpleDateFormat;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 /**
  * 
  * CSCU9T4 Java strings and files exercise.
@@ -25,12 +27,13 @@ public class FilesInOut {
 	static Scanner scan = null;
 	static boolean validInput = false;
 	static String flag = "";
+	
     public static void main(String[] args)
     {
     	do 
     	{
     		System.out.println("Sypply flag: -d, -u or -h");
-    		flag = in.nextLine();
+    		flag = in.next();
     		if(flag.equals("-d") || flag.equals("-u")|| flag.equals("-h"))validInput = true;
     		else validInput = false;
     	}while(validInput == false);
@@ -38,7 +41,7 @@ public class FilesInOut {
     	{
 	    	System.out.println("Supply filename for input:");
 	    	try {
-	    		inputFileName = in.nextLine();
+	    		inputFileName = in.next();
 	    		inputFile = new File(inputFileName) ;
 	    		scan = new Scanner(inputFile);
 	    		scan.useDelimiter("\n");
@@ -50,22 +53,55 @@ public class FilesInOut {
     	}while(validInput == false);
     	
     	validInput = false;
+    	System.out.println("Supply filename for output:");
     	do
     	{
-	    	System.out.println("Supply filename for output:");
 	    	try {
-	    		outputFileName = in.nextLine();
+	    		outputFileName = in.next();
 	    		outputFile = new File(outputFileName) ;
 	    		writer = new PrintWriter(outputFile);
-	    		validInput = true;
-	    		} catch (IOException e) {
-	    			System.err.println("IOException: " + e.getMessage() + "not found");
+	    		String getName = outputFile.getName();
+	    		int index = getName.lastIndexOf(".");
+	    		if (((index == -1) ? "" : getName.substring(index + 1)).equals("html"))
+	    			{
+	    					if(flag.equals("-h"))validInput = true;
+	    					else 
+	    		    		{
+	    		    			validInput = false;
+	    		    			System.out.println("Enter a valid output type.");
+	    		    		}
+	    			}
+	    		if (((index == -1) ? "" : getName.substring(index + 1)).equals("txt"))
+    			{
+    					if(flag.equals("-d") || flag.equals("-u"))validInput = true;
+    					else 
+    		    		{
+    		    			validInput = false;
+    		    			System.out.println("Enter a valid output type.");
+    		    		}
+    			}
+	    		} catch (FileNotFoundException e) {
+	    			
+	    			System.err.println("FileNotFoundException: " + e.getMessage() + "not openable");
 	    			validInput = false;
 	    			}
+
     	}while(validInput == false);
-    	//titleCase();
-    	allUpperCase();
-    	
+    	if(flag.equals("-d"))
+    		{
+	    		titleCase();
+	    		print();
+    		}
+    	if(flag.equals("-u"))
+    		{
+    			allUpperCase();
+    			print();
+    		}
+    	if(flag.equals("-h"))
+    		{
+    			titleCase();
+    			printHTML();
+    		}
     }
     private static void titleCase()
     {
@@ -100,7 +136,6 @@ public class FilesInOut {
             }
             catch(Exception e) {}
     	}
-    	print();
     }
     
     private static void allUpperCase()
@@ -136,7 +171,6 @@ public class FilesInOut {
             }
             catch(Exception e) {}
     	}
-    	print();
     }
     private static void print()
     {
@@ -150,5 +184,35 @@ public class FilesInOut {
     	}
     	writer.close();
     }
-
+    private static void printHTML()
+    {
+    	String fillingHTML;
+    	
+    	fillingHTML = "<!DOCTYPE html>\r\n" + 
+    			"<html>\r\n" + 
+    			"<head>\r\n" + 
+    			"<style>\r\n" +
+    			"table{width: 25%;}\r\n" +
+    			"table, tr, th{border:1px solid;}\r\n" +
+    			"</style>\r\n" +
+    			"<title>Writing in an HTML file</title>\r\n" + 
+    			"</head>\r\n" + 
+    			"<body>\r\n" + 
+    			"<table>\r\n" +
+    			"<tr>\r\n" + "<th><i>Name</i></th>\r\n" + "<th><i>BirthDate</i></th>\r\n" + "</tr>\r\n";
+    	
+    	ListIterator<Table> iter = table.listIterator();
+    	while(iter.hasNext())
+    	{
+    		Table current = iter.next();
+    		String date2 = newDate.format(current.getDate());
+    		System.out.printf("%-25s %s\n",current.getName(), date2);
+    		fillingHTML += "<tr>\r\n" +
+    				"<th>" + current.getName() + "</th>\r\n" +
+    				"<th>" + date2 + "</th>\r\n" + "</tr>\r\n";
+    	}
+    	fillingHTML += "</table>\r\n" + "</body>\r\n" + "</html>\r\n";
+    	writer.print(fillingHTML);
+    	writer.close();
+    }
 } // FilesInOut

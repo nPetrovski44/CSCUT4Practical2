@@ -28,8 +28,18 @@ public class FilesInOut {
 	static boolean validInput = false;
 	static String flag = "";
 	
+	/**
+	 * This is the main method where we check for the flag, inputFileName and outputFileName
+	 * @param args
+	 */
     public static void main(String[] args)
     {
+    	/*
+    	 * We check for the validity of the flag entered
+    	 * -d for default
+    	 * -u for all uperCase letters
+    	 * -h for default html
+    	*/
     	do 
     	{
     		System.out.println("Sypply flag: -d, -u or -h");
@@ -37,6 +47,11 @@ public class FilesInOut {
     		if(flag.equals("-d") || flag.equals("-u")|| flag.equals("-h"))validInput = true;
     		else validInput = false;
     	}while(validInput == false);
+    	
+    	/*
+    	 * We check for the name of a inputFileName, if no such file exists
+    	 * we prompt the user to enter a new name.
+    	 */
     	do
     	{
 	    	System.out.println("Supply filename for input:");
@@ -51,8 +66,13 @@ public class FilesInOut {
 	    			validInput = false;
 	    			}
     	}while(validInput == false);
+    
+    	/*
+    	 * We check for the name of a outputFileName and its type.
+    	 * If there isn't such a file but the type is correct we create the file,
+    	 * otherwise we prompt the user to enter a new name.
+    	 */
     	
-    	validInput = false;
     	System.out.println("Supply filename for output:");
     	do
     	{
@@ -60,33 +80,37 @@ public class FilesInOut {
 	    		outputFileName = in.next();
 	    		outputFile = new File(outputFileName) ;
 	    		writer = new PrintWriter(outputFile);
+	    		
+	    		//We check the type of the file
 	    		String getName = outputFile.getName();
 	    		int index = getName.lastIndexOf(".");
-	    		if (((index == -1) ? "" : getName.substring(index + 1)).equals("html"))
+	    		
+	    		//Check if the type matches with the flag choosen
+	    		if(flag.equals("-h"))
 	    			{
-	    					if(flag.equals("-h"))validInput = true;
+	    					if (((index == -1) ? "" : getName.substring(index + 1)).equals("html"))validInput = true;
 	    					else 
 	    		    		{
 	    		    			validInput = false;
 	    		    			System.out.println("Enter a valid output type.");
 	    		    		}
 	    			}
-	    		if (((index == -1) ? "" : getName.substring(index + 1)).equals("txt"))
+	    		if(flag.equals("-d") || flag.equals("-u"))
     			{
-    					if(flag.equals("-d") || flag.equals("-u"))validInput = true;
+	    				if (((index == -1) ? "" : getName.substring(index + 1)).equals("txt"))validInput = true;
     					else 
     		    		{
     		    			validInput = false;
     		    			System.out.println("Enter a valid output type.");
     		    		}
     			}
-	    		} catch (FileNotFoundException e) {
-	    			
-	    			System.err.println("FileNotFoundException: " + e.getMessage() + "not openable");
+	    		} catch (Exception e) {
 	    			validInput = false;
 	    			}
 
     	}while(validInput == false);
+    	
+    	//We then format the text from the inputFile depending on the flag
     	if(flag.equals("-d"))
     		{
 	    		titleCase();
@@ -102,18 +126,29 @@ public class FilesInOut {
     			titleCase();
     			printHTML();
     		}
-    }
+    }//main
+    
+    /**
+     * This method stores the names and birth dates of the people in the inputFile
+     * into an arrayList of Objects Table
+     */
     private static void titleCase()
     {
+    	 //We go through each line in the text
     	while(scan.hasNext())
     	{
             String line = scan.next();
             String lineDate = "";
             String lineName = "";
             Scanner lineScan = new Scanner(line);
+            
+            //We go through each String value in that line
             while(lineScan.hasNext())
             {
                 String word = lineScan.next();
+                
+                //If the string value could be transformed into a date correctly,
+                //we do that and store the date in a new format
                 try
                 {
                 	date = dateType.parse(word);
@@ -122,22 +157,33 @@ public class FilesInOut {
                 	
                 }catch(Exception e)
                 {
+                	//If the string we are currently on is of length - 1, we assume it is a middle name, we capitalize it and we add a '.'
                 	if(word.length() == 1)
                 	{
                 		word += ".";
                 	}
+                	
+                	//We separate the first letter of the word, capitalize it and add it to the rest of the word
                 	lineName += Character.toUpperCase(word.charAt(0)) + word.substring(1) + " ";
                 }
             }
+            //We add the names and the dates to the arrayList
             try
             {
             	Table t = new Table(lineName.trim(), newDate.parse(lineDate));
                 table.add(t);
             }
-            catch(Exception e) {}
+            catch(Exception e) {
+            	System.out.println("Error.");
+            }
     	}
-    }
+    }//titleCase
     
+    /**
+     * This method stores the formated names and birth dates of the people in the inputFile
+     * into an arrayList of Objects Table. The difference is that this method changes all the letters
+     * into upper case ones
+     */
     private static void allUpperCase()
     {
     	while(scan.hasNext())
@@ -161,6 +207,7 @@ public class FilesInOut {
                 	{
                 		word += ".";
                 	}
+                	//We change the entire string into upper cases.
                 	lineName += word.toUpperCase() + " ";
                 }
             }
@@ -171,7 +218,12 @@ public class FilesInOut {
             }
             catch(Exception e) {}
     	}
-    }
+    }//allUpperCase
+    
+    /**
+     * This method goes through the arrayList, printing all the entries
+     * and writing them onto the outputFile
+     */
     private static void print()
     {
     	ListIterator<Table> iter = table.listIterator();
@@ -183,7 +235,12 @@ public class FilesInOut {
     		writer.printf("%-25s %s\n",current.getName(), date2);
     	}
     	writer.close();
-    }
+    }//print
+    
+    /**
+     * This method goes through the arrayList, printing all the entries
+     * in a table for HTML type files and writes that onto the file.
+     */
     private static void printHTML()
     {
     	String fillingHTML;
@@ -214,5 +271,6 @@ public class FilesInOut {
     	fillingHTML += "</table>\r\n" + "</body>\r\n" + "</html>\r\n";
     	writer.print(fillingHTML);
     	writer.close();
-    }
+    }//printHTML
+    
 } // FilesInOut

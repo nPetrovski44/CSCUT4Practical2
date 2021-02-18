@@ -3,8 +3,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
-
-
 import java.lang.Number;
 import java.text.SimpleDateFormat;
 /**
@@ -14,25 +12,63 @@ import java.text.SimpleDateFormat;
  */
 public class FilesInOut {
 	
-	protected static ArrayList<Table> table = new ArrayList<Table>();
-
-    public static void main(String[] args) throws IOException 
+	static ArrayList<Table> table = new ArrayList<Table>();
+	static SimpleDateFormat dateType = new SimpleDateFormat("ddmmyyyy");
+	static SimpleDateFormat newDate = new SimpleDateFormat("dd/mm/yyyy");
+	static Date date = null;
+	static File inputFile;
+	static File outputFile;
+	static PrintWriter writer = null; 
+	static String inputFileName;
+	static String outputFileName;
+	static Scanner in = new Scanner(System.in);
+	static Scanner scan = null;
+	static boolean validInput = false;
+	static String flag = "";
+    public static void main(String[] args)
     {
-        // Replace this with statements to set the file name (input) and file name (output).
-        // Initially it will be easier to hardcode suitable file names.
-    	File input = new File("C:\\Users\\Nikolay Petrovski\\git\\CSCUT4Practical2\\inputm.txt");
-    	File output = new File("C:\\Users\\Nikolay Petrovski\\git\\CSCUT4Practical2\\formatted.txt");
-    	SimpleDateFormat dateType = new SimpleDateFormat("ddmmyyyy");
-    	SimpleDateFormat newDate = new SimpleDateFormat("dd/mm/yyyy");
-    	Date date = null;
+    	do 
+    	{
+    		System.out.println("Sypply flag: -d, -u or -h");
+    		flag = in.nextLine();
+    		if(flag.equals("-d") || flag.equals("-u")|| flag.equals("-h"))validInput = true;
+    		else validInput = false;
+    	}while(validInput == false);
+    	do
+    	{
+	    	System.out.println("Supply filename for input:");
+	    	try {
+	    		inputFileName = in.nextLine();
+	    		inputFile = new File(inputFileName) ;
+	    		scan = new Scanner(inputFile);
+	    		scan.useDelimiter("\n");
+	    		validInput = true;
+	    		} catch (IOException e) {
+	    			System.err.println("IOException: " + e.getMessage() + "not found");
+	    			validInput = false;
+	    			}
+    	}while(validInput == false);
     	
-        // Set up a new Scanner to read the input file.
+    	validInput = false;
+    	do
+    	{
+	    	System.out.println("Supply filename for output:");
+	    	try {
+	    		outputFileName = in.nextLine();
+	    		outputFile = new File(outputFileName) ;
+	    		writer = new PrintWriter(outputFile);
+	    		validInput = true;
+	    		} catch (IOException e) {
+	    			System.err.println("IOException: " + e.getMessage() + "not found");
+	    			validInput = false;
+	    			}
+    	}while(validInput == false);
+    	//titleCase();
+    	allUpperCase();
     	
-    	FileWriter writer = new FileWriter(output);
-    	Scanner scan = new Scanner(input);
-    	scan.useDelimiter("\n");
-    	
-// Initially, echo the text to System.out to check you are reading correctly.
+    }
+    private static void titleCase()
+    {
     	while(scan.hasNext())
     	{
             String line = scan.next();
@@ -63,32 +99,56 @@ public class FilesInOut {
                 table.add(t);
             }
             catch(Exception e) {}
-            writer.write(lineName.trim() + " " + lineDate + "\n");
-    		System.out.printf("%-25s %s\n", lineName.trim(), lineDate);
     	}
-    	writer.close();
-    	
-    	//print();
-        // Then add code to modify the text to the output format.
-
-        // Set up a new PrintWriter to write the output file.
-        // Add suitable code into the above processing (because you need to do this line by line also.
-        // That is, read a line, write a line, loop.
-
-    	
-        // Finally, add code to read the filenames as arguments from the command line.
-
-
-    } // main
+    	print();
+    }
     
-    public static void print()
+    private static void allUpperCase()
+    {
+    	while(scan.hasNext())
+    	{
+            String line = scan.next();
+            String lineDate = "";
+            String lineName = "";
+            Scanner lineScan = new Scanner(line);
+            while(lineScan.hasNext())
+            {
+                String word = lineScan.next();
+                try
+                {
+                	date = dateType.parse(word);
+                	String formatedDate = newDate.format(date);
+                	lineDate = formatedDate;
+                	
+                }catch(Exception e)
+                {
+                	if(word.length() == 1)
+                	{
+                		word += ".";
+                	}
+                	lineName += word.toUpperCase() + " ";
+                }
+            }
+            try
+            {
+            	Table t = new Table(lineName.trim(), newDate.parse(lineDate));
+                table.add(t);
+            }
+            catch(Exception e) {}
+    	}
+    	print();
+    }
+    private static void print()
     {
     	ListIterator<Table> iter = table.listIterator();
     	while(iter.hasNext())
     	{
     		Table current = iter.next();
-    		System.out.println(current.getName() + " " + current.getDate());
+    		String date2 = newDate.format(current.getDate());
+    		System.out.printf("%-25s %s\n",current.getName(), date2);
+    		writer.printf("%-25s %s\n",current.getName(), date2);
     	}
+    	writer.close();
     }
 
 } // FilesInOut

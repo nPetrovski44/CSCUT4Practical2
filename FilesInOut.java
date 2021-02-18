@@ -40,9 +40,10 @@ public class FilesInOut {
     	 * -u for all uperCase letters
     	 * -h for default html
     	*/
+    	
     	do 
     	{
-    		System.out.println("Sypply flag: -d, -u or -h");
+    		System.out.println("Sypply flag: -u or -h");
     		flag = in.next();
     		if(flag.equals("-d") || flag.equals("-u")|| flag.equals("-h"))validInput = true;
     		else validInput = false;
